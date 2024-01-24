@@ -1,0 +1,10 @@
+streamlit-chat
+tensorflow
+streamlit_option_menu
+openai
+gdown
+pymysql
+streamlit-aggrid
+streamlit-webrtc
+opencv-python-headless
+scikit-learn

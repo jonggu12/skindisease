@@ -1,0 +1,1 @@
+URL: https://jonggu12.s3.ap-southeast-2.amazonaws.com/final_model2.h5
