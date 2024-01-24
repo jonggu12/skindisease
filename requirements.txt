@@ -8,3 +8,4 @@ streamlit-aggrid
 streamlit-webrtc
 opencv-python-headless
 scikit-learn
+h5py
