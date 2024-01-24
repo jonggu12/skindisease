@@ -47,6 +47,16 @@ metadata_df = load_metadata('HAM10000_metadata.csv')
 
 # 모델 다운로드
 model_file_path = "final_model5.h5"
+if not os.path.exists(model_file_path):
+    github_model_url = "https://raw.githubusercontent.com/jonggu12/skindisease/main/final_model5.h5"  # 모델 파일의 실제 경로로 수정
+    response = requests.get(github_model_url, stream=True)
+    with open(model_file_path, "wb") as file:
+        for chunk in response.iter_content(chunk_size=1024):
+            if chunk:
+                file.write(chunk)
+
+# 모델 로드
+model = load_model(model_file_path)
 
 # 모델 로드
 model = load_model(model_file_path)
