@@ -44,23 +44,9 @@ def predict_skin_disease(model, img_array, meta_input):
 # 메타데이터 로드
 metadata_df = load_metadata('HAM10000_metadata.csv')
 
-# # 외부 파일에서 URL 읽기
-# external_file_path = "external_file.txt"
-# if os.path.exists(external_file_path):
-#     with open(external_file_path, "r") as external_file:
-#         s3_model_url = external_file.readline().strip()  # 파일에서 첫 번째 줄을 URL로 읽음
-# else:
-#     s3_model_url = "https://jonggu12.s3.ap-southeast-2.amazonaws.com/final_model2.h5"
 
 # 모델 다운로드
-model_file_path = "/Users/choejong-gyu/Documents/GitHub/skindisease/final_model5.h5"
-# if not os.path.exists(model_file_path):
-#     github_model_url = "https://raw.githubusercontent.com/jonggu12/skindisease/main/final_model2.h5"
-#     response = requests.get(github_model_url, stream=True)
-#     with open(model_file_path, "wb") as file:
-#         for chunk in response.iter_content(chunk_size=1024):
-#             if chunk:
-#                 file.write(chunk)
+model_file_path = "final_model5.h5"
 
 # 모델 로드
 model = load_model(model_file_path)
