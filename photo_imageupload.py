@@ -45,7 +45,7 @@ def predict_skin_disease(model, img_array, meta_input):
 metadata_df = load_metadata('HAM10000_metadata.csv')
 
 
-model_file_path = "/Users/choejong-gyu/Documents/GitHub/skindisease/dense201_0125.h5"
+model_file_path = "/Users/choejong-gyu/Documents/GitHub/skindisease2/dense201_0125.h5"
 
 
 # 모델 로드
