@@ -9,6 +9,8 @@ from PIL import Image
 from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
 import requests
 import os
+import tempfile
+
 
 # 함수 정의
 def load_metadata(file_path):
@@ -45,13 +47,27 @@ def predict_skin_disease(model, img_array, meta_input):
 metadata_df = load_metadata('HAM10000_metadata.csv')
 
 
-model_file_path = "/Users/choejong-gyu/Documents/GitHub/skindisease2/dense201_0125.h5"
+# model_file_path = "/Users/choejong-gyu/Documents/GitHub/skindisease2/dense201_0125.h5"
 
+
+# # 모델 로드
+# model = load_model(model_file_path)
+
+# 모델 파일 URL
+model_file_url = "https://myjonggu.s3.ap-southeast-2.amazonaws.com/dense201_0125.h5"
+
+# 모델 파일을 임시 파일로 다운로드
+response = requests.get(model_file_url)
+temp_file = tempfile.NamedTemporaryFile(delete=False)
+temp_file_name = temp_file.name
+temp_file.write(response.content)
+temp_file.close()
 
 # 모델 로드
-model = load_model(model_file_path)
+model = load_model(temp_file_name)
 
-
+# 임시 파일 삭제
+os.remove(temp_file_name)
 # 클래스 이름 매핑
 class_names = {
     0: '피부 선암 (Actinic keratoses and intraepithelial carcinoma)',
