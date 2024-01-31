@@ -1,3 +1,4 @@
+import threading
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -10,6 +11,32 @@ import requests
 import os
 import tempfile
 from sklearn.preprocessing import LabelEncoder
+import streamlit as st
+from streamlit_webrtc import webrtc_streamer, VideoTransformerBase, RTCConfiguration
+import cv2
+from PIL import Image
+import numpy as np
+
+
+RTC_CONFIGURATION = RTCConfiguration({"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]})
+
+class VideoTransformer(VideoTransformerBase):
+    frame_lock: threading.Lock  # 프레임 잠금을 위한 락
+    in_frame: np.ndarray  # 입력 프레임 저장용 변수
+
+    def __init__(self) -> None:
+        self.frame_lock = threading.Lock()
+        self.in_frame = None
+
+    def transform(self, frame):
+        img = frame.to_ndarray(format="bgr24")
+        
+        with self.frame_lock:
+            self.in_frame = img  # 현재 프레임을 저장
+
+        return img  # 원본 프레임 반환
+
+
 
 # 함수 정의
 def load_metadata(file_path):
@@ -83,7 +110,7 @@ class_descriptions = {
 }
 
 def main():
-    st.title("피부 질환 감지 애플리케이션 - 사진찍기 모드")
+    st.title("피부 질환 감지 - 사진찍기 모드")
     
     webrtc_ctx = webrtc_streamer(key="example")
 
@@ -109,7 +136,7 @@ def main():
                     img = np.expand_dims(img, axis=0) / 255.0
 
                     # 메타데이터 인코딩
-                    meta_input = encode_user_input(metadata_df, age, sex_input, localization_input)
+                    meta_input = encode_user_input(metadata_df, age, sex, localization)
 
                     # 예측 수행
                     predictions = predict_skin_disease(model, img, meta_input)
