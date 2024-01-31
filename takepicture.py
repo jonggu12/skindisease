@@ -244,7 +244,7 @@ def main():
     # 모델 및 메타데이터 로드
     model, metadata_df = load_model_and_metadata()
 
-    webrtc_ctx = webrtc_streamer(key="example", rtc_configuration=RTC_CONFIGURATION)
+    webrtc_ctx = webrtc_streamer(key="example", video_processor_factory=VideoTransformer, rtc_configuration=RTC_CONFIGURATION)
 
     if webrtc_ctx.video_transformer:
         if st.button("사진찍기"):
