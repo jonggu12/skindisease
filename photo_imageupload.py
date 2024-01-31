@@ -121,9 +121,10 @@ def main():
         if webrtc_ctx.video_transformer:
             if st.button("사진찍기"):
                 with webrtc_ctx.video_transformer.frame_lock:
-                    if webrtc_ctx.video_transformer.frame is not None:
-                        frame = webrtc_ctx.video_transformer.frame
-
+                    frame = webrtc_ctx.video_transformer.in_frame
+                    
+                    if frame is not None:
+                
                         # OpenCV로 이미지 처리
                         img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
