@@ -192,6 +192,8 @@ import requests
 import os
 import tempfile
 from sklearn.preprocessing import LabelEncoder
+from streamlit_webrtc import VideoTransformerBase
+
 
 # RTC 설정 정의
 RTC_CONFIGURATION = RTCConfiguration({"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]})
