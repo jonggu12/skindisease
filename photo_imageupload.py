@@ -10,7 +10,23 @@ from streamlit_webrtc import webrtc_streamer, VideoTransformerBase
 import requests
 import os
 import tempfile
+from streamlit_webrtc import RTCConfiguration, VideoTransformerBase
+import threading
 
+# RTC 설정 정의
+RTC_CONFIGURATION = RTCConfiguration({"iceServers": [{"urls": ["stun:stun.l.google.com:19302"]}]})
+
+# 비디오 트랜스포머 클래스 정의
+class VideoTransformer(VideoTransformerBase):
+    def __init__(self) -> None:
+        self.frame_lock = threading.Lock()
+        self.in_frame = None
+
+    def transform(self, frame):
+        img = frame.to_ndarray(format="bgr24")
+        with self.frame_lock:
+            self.in_frame = img
+        return img
 
 # 함수 정의
 def load_metadata(file_path):
@@ -47,27 +63,25 @@ def predict_skin_disease(model, img_array, meta_input):
 metadata_df = load_metadata('HAM10000_metadata.csv')
 
 
-# model_file_path = "/Users/choejong-gyu/Documents/GitHub/skindisease2/dense201_0125.h5"
-
-
-# # 모델 로드
-# model = load_model(model_file_path)
-
 # 모델 파일 URL
 model_file_url = "https://myjonggu.s3.ap-southeast-2.amazonaws.com/dense201_0125.h5"
 
 # 모델 파일을 임시 파일로 다운로드
 response = requests.get(model_file_url)
-temp_file = tempfile.NamedTemporaryFile(delete=False)
-temp_file_name = temp_file.name
-temp_file.write(response.content)
-temp_file.close()
+if response.status_code == 200:
+    temp_file = tempfile.NamedTemporaryFile(delete=False, mode='wb')  # 이진 쓰기 모드로 열기
+    temp_file.write(response.content)
+    temp_file.close()
 
-# 모델 로드
-model = load_model(temp_file_name)
+    # 모델 로드
+    model = load_model(temp_file.name)
 
-# 임시 파일 삭제
-os.remove(temp_file_name)
+    # 임시 파일 삭제
+    os.remove(temp_file.name)
+else:
+    st.error("모델 파일 다운로드 실패: HTTP 상태 코드 {}".format(response.status_code))
+
+
 # 클래스 이름 매핑
 class_names = {
     0: '피부 선암 (Actinic keratoses and intraepithelial carcinoma)',
@@ -100,9 +114,9 @@ def main():
     app_mode = st.sidebar.selectbox("모드 선택", ["사진찍기", "이미지 업로드"])
     
     if app_mode == "사진찍기":
-        st.title("피부 질환 감지 애플리케이션 - 사진찍기 모드")
+        st.title("피부 질환 감지 - 사진찍기 모드")
         
-        webrtc_ctx = webrtc_streamer(key="example")
+        webrtc_ctx = webrtc_streamer(key="example", video_processor_factory=VideoTransformer, rtc_configuration=RTC_CONFIGURATION)
 
         if webrtc_ctx.video_transformer:
             if st.button("사진찍기"):
@@ -117,9 +131,9 @@ def main():
 
                         # 성별, 나이, 질환 부위 입력 받기
                         age = st.number_input("나이를 입력하세요", min_value=1, max_value=100, value=30)
-                        sex_input = st.selectbox("성별을 선택하세요", ["남자", "여자"])
-                        localization_input = st.text_input("질환 부위를 입력하세요 (예: 얼굴, 머리)")
-
+                        sex = st.selectbox("성별을 선택하세요", ["남자", "여자"])
+                        localization = st.selectbox("질환 부위를 선택하세요", ["복부", "등", "가슴", "얼굴", "발", "생식기", "다리", "목", "두피", "몸통", "알수없음", "팔", "귀", "손바닥", "손"])
+                    
                         # 캡처된 사진을 피부질환 모델로 예측
                         img = cv2.resize(img, (224, 224))  # 모델 입력 크기에 맞게 리사이즈
                         img = image.img_to_array(img)
@@ -163,7 +177,7 @@ def main():
                         st.markdown("### [여기를 클릭하여 피부 상태 제품 추천 서비스로 이동](https://app-eqmlagtpuerscreh89pscg.streamlit.app/)")
 
     if app_mode == "이미지 업로드":
-        st.title("피부 질환 감지 애플리케이션 - 이미지 업로드 모드")
+        st.title("피부 질환 감지 - 이미지 업로드 모드")
     
         # "경고" 체크박스 추가
         show_warning = st.checkbox("주의: 이 딥러닝 모델은 정확하지 않을 수 있으며 결과에 대한 신뢰성이 없을 수 있습니다. 전문의의 상담이 필요할 수 있습니다.")
