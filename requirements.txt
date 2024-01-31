@@ -9,3 +9,8 @@ streamlit-webrtc
 opencv-python-headless
 scikit-learn
 h5py
+streamlit
+pandas
+numpy
+Pillow
+requests
