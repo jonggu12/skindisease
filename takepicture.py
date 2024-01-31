@@ -225,9 +225,18 @@ def load_model_and_metadata():
         raise Exception("모델 파일 다운로드 실패: HTTP 상태 코드 {}".format(response.status_code))
 
 # 유틸리티 함수
-def encode_user_input(metadata_df, age, sex, localization):
-    # 성별 및 부위 인코딩 로직
-    sex_encoded = 0 if sex == "남자" else 1
+def encode_user_input(metadata_df, age, sex_input, localization_input):
+    sex_dict = {"남자": "male", "여자": "female"}
+    localization_dict = {
+        "복부": "abdomen", "등": "back", "가슴": "chest", "얼굴": "face",
+        "발": "foot", "생식기": "genital", "다리": "lower extremity",
+        "목": "neck", "두피": "scalp", "몸통": "trunk",
+        "알수없음": "unknown", "팔": "upper extremity",
+        "귀": "ear", "손바닥": "acral", "손": "hand",
+    }
+    sex = sex_dict.get(sex_input, "unknown")
+    localization = localization_dict.get(localization_input, "unknown")
+    sex_encoded = 0 if sex == "male" else 1
     label_encoder = LabelEncoder().fit(metadata_df['localization'])
     localization_encoded = label_encoder.transform([localization])[0]
     return np.array([[age, sex_encoded, localization_encoded]])
@@ -256,7 +265,7 @@ def main():
                 # 사용자 입력 받기 및 예측 수행
                 age = st.number_input("나이를 입력하세요", min_value=1, max_value=100, value=30)
                 sex = st.selectbox("성별을 선택하세요", ["남자", "여자"])
-                localization = st.selectbox("질환 부위를 선택하세요", list(metadata_df['localization'].unique()))
+                localization = st.selectbox("질환 부위를 선택하세요", ["복부", "등", "가슴", "얼굴", "발", "생식기", "다리", "목", "두피", "몸통", "알수없음", "팔", "귀", "손바닥", "손"])
 
                 img_array = preprocess_image(Image.fromarray(img))
                 meta_input = encode_user_input(metadata_df, age, sex, localization)
