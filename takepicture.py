@@ -98,11 +98,11 @@ def main():
 
                     st.image(img, caption="캡처된 사진")
 
-                    # 성별, 나이, 질환 부위 입력 받기
+                    # 사용자 입력 받기
                     age = st.number_input("나이를 입력하세요", min_value=1, max_value=100, value=30)
-                    sex_input = st.selectbox("성별을 선택하세요", ["남자", "여자"])
-                    localization_input = st.text_input("질환 부위를 입력하세요 (예: 얼굴, 머리)")
-
+                    sex = st.selectbox("성별을 선택하세요", ["남자", "여자"])
+                    localization = st.selectbox("질환 부위를 선택하세요", ["복부", "등", "가슴", "얼굴", "발", "생식기", "다리", "목", "두피", "몸통", "알수없음", "팔", "귀", "손바닥", "손"])
+                
                     # 캡처된 사진을 피부질환 모델로 예측
                     img = cv2.resize(img, (224, 224))  # 모델 입력 크기에 맞게 리사이즈
                     img = image.img_to_array(img)
