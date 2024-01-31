@@ -141,7 +141,8 @@ def main():
                         img = np.expand_dims(img, axis=0) / 255.0
 
                         # 메타데이터 인코딩
-                        meta_input = encode_user_input(metadata_df, age, sex_input, localization_input)
+                        meta_input = encode_user_input(metadata_df, age, sex, localization)
+
 
                         # 예측 수행
                         predictions = predict_skin_disease(model, img, meta_input)
