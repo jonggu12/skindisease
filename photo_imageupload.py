@@ -116,6 +116,14 @@ def main():
     if app_mode == "사진찍기":
         st.title("피부 질환 감지 - 사진찍기 모드")
         
+        # 메타데이터 입력 받기
+        age = st.number_input("나이를 입력하세요", min_value=1, max_value=100, value=30)
+        sex = st.selectbox("성별을 선택하세요", ["남자", "여자"])
+        localization = st.selectbox("질환 부위를 선택하세요", ["복부", "등", "가슴", "얼굴", "발", "생식기", "다리", "목", "두피", "몸통", "알수없음", "팔", "귀", "손바닥", "손"])
+        
+        # 메타데이터 인코딩
+        meta_input = encode_user_input(metadata_df, age, sex, localization)
+        
         webrtc_ctx = webrtc_streamer(key="example", video_processor_factory=VideoTransformer, rtc_configuration=RTC_CONFIGURATION)
 
         if webrtc_ctx.video_transformer:
@@ -124,28 +132,17 @@ def main():
                     frame = webrtc_ctx.video_transformer.in_frame
                     
                     if frame is not None:
-                
                         # OpenCV로 이미지 처리
                         img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
                         st.image(img, caption="캡처된 사진")
-
-                        # 성별, 나이, 질환 부위 입력 받기
-                        age = st.number_input("나이를 입력하세요", min_value=1, max_value=100, value=30)
-                        sex = st.selectbox("성별을 선택하세요", ["남자", "여자"])
-                        localization = st.selectbox("질환 부위를 선택하세요", ["복부", "등", "가슴", "얼굴", "발", "생식기", "다리", "목", "두피", "몸통", "알수없음", "팔", "귀", "손바닥", "손"])
-                    
-                        # 캡처된 사진을 피부질환 모델로 예측
                         img = cv2.resize(img, (224, 224))  # 모델 입력 크기에 맞게 리사이즈
                         img = image.img_to_array(img)
                         img = np.expand_dims(img, axis=0) / 255.0
 
-                        # 메타데이터 인코딩
-                        meta_input = encode_user_input(metadata_df, age, sex, localization)
-
-
                         # 예측 수행
                         predictions = predict_skin_disease(model, img, meta_input)
+
+
 
                         # 예측 결과 표시
                         top_class_index = np.argmax(predictions)
