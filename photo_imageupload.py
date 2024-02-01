@@ -64,7 +64,7 @@ metadata_df = load_metadata('HAM10000_metadata.csv')
 
 
 # 모델 파일 URL
-model_file_url = "https://myjonggu.s3.ap-southeast-2.amazonaws.com/dense201_0125.h5"
+model_file_url = "https://myjonggu.s3.ap-southeast-2.amazonaws.com/best_model2.h5"
 
 # 모델 파일을 임시 파일로 다운로드
 response = requests.get(model_file_url)
